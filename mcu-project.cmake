@@ -1,3 +1,21 @@
+#
+# mcu-project component library apis 
+#
+# component layout
+# 
+#   ├── include
+#   │   └── <headers>
+#   ├── src
+#   │   └── <sources>
+#   └── CMakeLists.txt
+#
+# function & macros
+#
+#   mcu_interface_library(<target> <sources ...>)
+#   mcu_library(<target> <sources ...>)
+#   mcu_link_libraries(<target> <link-targets ...>)
+#   mcu_compile_definitions(<target> <definitions ...>)
+#
 
 # mcu_interface_library(<target> <sources ...>)
 function(mcu_interface_library target)
@@ -30,5 +48,15 @@ function(mcu_link_libraries target)
         target_link_libraries(${target} INTERFACE ${ARGN})
     else()
         target_link_libraries(${target} PUBLIC ${ARGN})
+    endif()
+endfunction()
+
+function (mcu_compile_definitions target)
+    get_property(is_interface TARGET ${target} PROPERTY TYPE)
+
+    if(${is_interface} STREQUAL "INTERFACE_LIBRARY")
+        target_compile_definitions(${target} INTERFACE ${ARGN})
+    else()
+        target_compile_definitions(${target} PUBLIC ${ARGN})
     endif()
 endfunction()
