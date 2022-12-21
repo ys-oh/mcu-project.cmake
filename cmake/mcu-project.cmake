@@ -7,6 +7,10 @@
 #   │   └── <headers>
 #   ├── src
 #   │   └── <sources>
+#   ├── priv
+#   │   └── <private-sources>
+#   ├── tests
+#   │   └── <test-sources>
 #   └── CMakeLists.txt
 #
 # function & macros
@@ -59,4 +63,31 @@ function (mcu_compile_definitions target)
     else()
         target_compile_definitions(${target} PUBLIC ${ARGN})
     endif()
+endfunction()
+
+include (FetchContent)
+
+FetchContent_Declare(
+    unitytest
+    GIT_REPOSITORY      https://github.com/ThrowTheSwitch/Unity.git
+    GIT_TAG             v2.5.2 
+)
+
+# FetchContent_MakeAvailable(unitytest myCompanyIcons)
+FetchContent_GetProperties(unitytest)
+if(NOT unitytest_POPULATED)
+    # Fetch the content using previously declared details
+    FetchContent_Populate(unitytest)
+
+    option (UNITY_EXTENSION_FIXTURE ON CACHE)
+    set (UNITY_EXTENSION_FIXTURE ON)
+    
+    # Bring the populated content into the build
+    add_subdirectory(${unitytest_SOURCE_DIR})
+endif()
+
+function (mcu_add_test target test_name)
+    add_executable(${target}-${test_name} ${ARGN})
+    target_link_libraries(${target}-${test_name} PUBLIC ${target} unity::framework)
+    add_test(NAME ${target}-${test_name} COMMAND ${target}-${test_name})
 endfunction()
