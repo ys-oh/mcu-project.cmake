@@ -22,8 +22,8 @@ mcu_compile_definitions
 ```
 
 examples
-- [stm](./examples/stm-app/README.md)
-- [zephyr](./examples/zephyr-app/README.md)
+- [stm](./examples/stm-app/)
+- [zephyr](./examples/zephyr-app/)
 
 
 ## Project API
