@@ -145,7 +145,7 @@ macro(mcu_project_stm core)
     set (CMAKE_EXE_LINKER_FLAGS "--specs=nosys.specs -lc -lm -lstdc++ -lsupc++ -Wl,--gc-sections,--print-memory-usage")
 endmacro()
 
-function(mcu_executable_stm target)
+macro(mcu_executable_stm target)
     add_executable(${target} ${ARGN})
 
     add_custom_command(TARGET ${target} POST_BUILD
@@ -156,7 +156,7 @@ function(mcu_executable_stm target)
         COMMAND arm-none-eabi-objcopy -O ihex -S ${target} ${target}.hex
         # COMMAND arm-none-eabi-objcopy -O srec -S ${PROJECT_NAME}.elf ${PROJECT_NAME}.srec
     )
-endfunction()
+endmacro()
 
 ################################################################
 # zephyr project functions & macros
@@ -165,7 +165,7 @@ macro(mcu_project_zephyr)
     find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 endmacro()
 
-function(mcu_executable_zephyr target)
+macro(mcu_executable_zephyr target)
     if ("${target}" STREQUAL "app")
         target_sources(${target} PRIVATE ${ARGN})
     else()
@@ -173,5 +173,5 @@ function(mcu_executable_zephyr target)
         target_sources(${target} INTERFACE ${ARGN})
         target_link_libraries(app PRIVATE ${target})
     endif()
-endfunction()
+endmacro()
 
