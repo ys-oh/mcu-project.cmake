@@ -175,3 +175,54 @@ macro(mcu_executable_zephyr target)
     endif()
 endmacro()
 
+################################################################
+# esp-idf project functions & macros
+################################################################
+macro(mcu_project_esp esp_target)
+    # include ($ENV{IDF_PATH}/tools/cmake/project.cmake)
+    include ($ENV{IDF_PATH}/tools/cmake/toolchain-${esp_target}.cmake)
+    include($ENV{IDF_PATH}/tools/cmake/idf.cmake)
+    set (ESP_TARGET ${esp_target})
+endmacro()
+
+macro(mcu_executable_esp target)
+
+    # Get idf components
+    idf_build_get_property(component_targets __COMPONENT_TARGETS)
+
+    set (_component_targets)
+
+    foreach(component_target ${component_targets})
+        set (_component_target)
+        string(REGEX REPLACE "___idf_" "" _component_target ${component_target})
+        list(APPEND _component_targets ${_component_target})
+    endforeach()
+
+    # Include ESP-IDF components in the build, may be thought as an equivalent of
+    # add_subdirectory() but with some additional processing and magic for ESP-IDF build
+    # specific build processes. 
+    idf_build_process("${ESP_TARGET}"
+                    # try and trim the build; additional components
+                    # will be included as needed based on dependency tree
+                    #
+                    # although esptool_py does not generate static library,
+                    # processing the component is needed for flashing related
+                    # targets and file generation
+                    COMPONENTS ${idf_components}
+                    # freertos esp_wifi bt
+                    SDKCONFIG ${CMAKE_CURRENT_LIST_DIR}/sdkconfig
+                    BUILD_DIR ${CMAKE_BINARY_DIR}
+    )
+
+    # Create the project executable
+    add_executable(${target} ${ARGN})
+
+    # link idf components
+    idf_build_get_property(build_components BUILD_COMPONENT_ALIASES)
+    foreach(build_component ${build_components})
+        target_link_libraries(${target} PRIVATE ${build_component})
+    endforeach()
+
+    # Let the build system know what the project executable is to attach more targets, dependencies, etc.
+    idf_build_executable(${target})
+endmacro()
