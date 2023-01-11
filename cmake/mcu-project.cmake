@@ -169,9 +169,14 @@ macro(mcu_executable_zephyr target)
     if ("${target}" STREQUAL "app")
         target_sources(${target} PRIVATE ${ARGN})
     else()
-        add_library(${target} INTERFACE)
-        target_sources(${target} INTERFACE ${ARGN})
-        target_link_libraries(app PRIVATE ${target})
+        # hook zephy app target
+        file (WRITE ${CMAKE_BINARY_DIR}/dummy.c)
+        target_sources(app PRIVATE ${CMAKE_BINARY_DIR}/dummy.c)
+
+        # add user mcu target
+        add_library(${target} STATIC)
+        target_sources(${target} PRIVATE ${ARGN})
+        target_link_libraries(${target} PUBLIC app)
     endif()
 endmacro()
 
