@@ -5,7 +5,7 @@ Simple MCU project build system
 Suppored MCU Frameworks
 - [X] stm
 - [X] zephyr
-- [ ] esp-idf
+- [X] esp-idf
 - [ ] arduino
 - [ ] mbedos
 
